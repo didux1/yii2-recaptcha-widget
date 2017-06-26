@@ -5,7 +5,7 @@
  * @license http://opensource.org/licenses/MIT MIT
  */
 
-namespace didux1\himiklab\yii2\recaptcha;
+namespace himiklab\yii2\recaptcha;
 
 use Yii;
 use yii\base\Exception;
