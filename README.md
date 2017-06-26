@@ -9,13 +9,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 * Either run
 
 ```
-php composer.phar require --prefer-dist "didux1/yii2-recaptcha-widget" "*"
+php composer.phar require --prefer-dist "himiklab/yii2-recaptcha-widget" "*"
 ```
 
 or add
 
 ```json
-"didux1/yii2-recaptcha-widget" : "*"
+"himiklab/yii2-recaptcha-widget" : "*"
 ```
 
 to the `require` section of your application's `composer.json` file.
@@ -30,7 +30,7 @@ If a siteKey or secret is set in an individual view or validation rule that woul
 'components' => [
     'reCaptcha' => [
         'name' => 'reCaptcha',
-        'class' => 'didux1\himiklab\yii2\recaptcha\ReCaptcha',
+        'class' => 'himiklab\yii2\recaptcha\ReCaptcha',
         'siteKey' => 'your siteKey',
         'secret' => 'your secret key',
     ],
@@ -46,7 +46,7 @@ public function rules()
 {
   return [
       // ...
-      [['reCaptcha'], \didux1\himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => 'your secret key']
+      [['reCaptcha'], \himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => 'your secret key']
   ];
 }
 ```
@@ -58,7 +58,7 @@ public function rules()
 {
   return [
       // ...
-      [[], \didux1\himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => 'your secret key']
+      [[], \himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => 'your secret key']
   ];
 }
 ```
@@ -70,7 +70,7 @@ public function rules()
 {
   return [
       // ...
-      [[], \didux1\himiklab\yii2\recaptcha\ReCaptchaValidator::className()]
+      [[], \himiklab\yii2\recaptcha\ReCaptchaValidator::className()]
   ];
 }
 ```
@@ -81,7 +81,7 @@ For example:
 
 ```php
 <?= $form->field($model, 'reCaptcha')->widget(
-    \didux1\himiklab\yii2\recaptcha\ReCaptcha::className(),
+    \himiklab\yii2\recaptcha\ReCaptcha::className(),
     ['siteKey' => 'your siteKey']
 ) ?>
 ```
@@ -89,7 +89,7 @@ For example:
 or
 
 ```php
-<?= \didux1\himiklab\yii2\recaptcha\ReCaptcha::widget([
+<?= \himiklab\yii2\recaptcha\ReCaptcha::widget([
     'name' => 'reCaptcha',
     'siteKey' => 'your siteKey',
     'widgetOptions' => ['class' => 'col-sm-offset-3']
@@ -105,7 +105,7 @@ or
 or simply
 
 ```php
-<?= \didux1\himiklab\yii2\recaptcha\ReCaptcha::widget(['name' => 'reCaptcha']) ?>
+<?= \himiklab\yii2\recaptcha\ReCaptcha::widget(['name' => 'reCaptcha']) ?>
 ```
 
 Multiple reCaptcha on a one page
@@ -113,14 +113,14 @@ Multiple reCaptcha on a one page
 Each the reCaptcha instance must have unique id
 ```php
 <?= $form1->field($modelForm1, 'reCaptcha')
-    ->widget(\didux1\himiklab\yii2\recaptcha\ReCaptcha::className(), [
+    ->widget(\himiklab\yii2\recaptcha\ReCaptcha::className(), [
         'widgetOptions' => [
             'id' => 're-captcha-form1',
         ]
     ]) ?>
 
 <?= $form2->field($modelForm2, 'reCaptcha')
-    ->widget(\didux1\himiklab\yii2\recaptcha\ReCaptcha::className(), [
+    ->widget(\himiklab\yii2\recaptcha\ReCaptcha::className(), [
         'widgetOptions' => [
             'id' => 're-captcha-form2',
         ]
