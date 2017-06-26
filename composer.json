@@ -1,12 +1,12 @@
 {
-    "name": "himiklab/yii2-recaptcha-widget",
+    "name": "didux1/yii2-recaptcha-widget",
     "description": "Yii2 Google reCAPTCHA widget",
     "keywords": ["yii2", "captcha", "recaptcha", "google", "widget"],
     "type": "yii2-extension",
     "license": "MIT",
     "support": {
-        "source": "https://github.com/himiklab/yii2-recaptcha-widget",
-        "issues": "https://github.com/himiklab/yii2-recaptcha-widget/issues"
+        "source": "https://github.com/didux1/yii2-recaptcha-widget",
+        "issues": "https://github.com/didux1/yii2-recaptcha-widget/issues"
     },
     "authors": [
         {
