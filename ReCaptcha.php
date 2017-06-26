@@ -10,7 +10,6 @@ namespace himiklab\yii2\recaptcha;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
-use yii\helpers\Inflector;
 use yii\widgets\InputWidget;
 
 /**
@@ -67,55 +66,50 @@ class ReCaptcha extends InputWidget
     /** @var string The size of the widget. [[SIZE_NORMAL]] (default) or [[SIZE_COMPACT]] */
     public $size;
 
-    /** @var int The tabindex of the widget  */
+    /** @var int The tabindex of the widget */
     public $tabindex;
 
     /** @var string Your JS callback function that's executed when the user submits a successful CAPTCHA response. */
     public $jsCallback;
 
+    /**
+     * @var string Your JS callback function that's executed when the recaptcha response expires and the user
+     * needs to solve a new CAPTCHA.
+     */
+    public $jsExpiredCallback;
+
     /** @var array Additional html widget options, such as `class`. */
     public $widgetOptions = [];
-
-    public function init()
-    {
-        $view = $this->view;
-        $view->registerJs($this->render('onload'), $view::POS_BEGIN);
-    }
 
     public function run()
     {
         if (empty($this->siteKey)) {
-            if (!empty(Yii::$app->reCaptcha->siteKey)) {
-                $this->siteKey = Yii::$app->reCaptcha->siteKey;
+            /** @var ReCaptcha $reCaptcha */
+            $reCaptcha = Yii::$app->reCaptcha;
+            if (!empty($reCaptcha->siteKey)) {
+                $this->siteKey = $reCaptcha->siteKey;
             } else {
                 throw new InvalidConfigException('Required `siteKey` param isn\'t set.');
             }
         }
 
-        $arguments = http_build_query([
-            'hl' => $this->getLanguageSuffix(),
-            'render' => 'explicit',
-            'onload' => 'recaptchaOnloadCallback',
-        ]);
-
         $view = $this->view;
         $view->registerJsFile(
-            self::JS_API_URL . '?' . $arguments,
-            ['position' => $view::POS_END]
+            self::JS_API_URL . '?hl=' . $this->getLanguageSuffix(),
+            ['position' => $view::POS_HEAD, 'async' => true, 'defer' => true]
         );
 
         $this->customFieldPrepare();
-        echo Html::tag('div', '', $this->buildDivOptions());
-    }
 
-    protected function buildDivOptions()
-    {
         $divOptions = [
             'class' => 'g-recaptcha',
             'data-sitekey' => $this->siteKey
         ];
         if (!empty($this->jsCallback)) {
             $divOptions['data-callback'] = $this->jsCallback;
+        }
+        if (!empty($this->jsExpiredCallback)) {
+            $divOptions['data-expired-callback'] = $this->jsExpiredCallback;
         }
         if (!empty($this->theme)) {
             $divOptions['data-theme'] = $this->theme;
@@ -130,29 +124,13 @@ class ReCaptcha extends InputWidget
             $divOptions['data-tabindex'] = $this->tabindex;
         }
 
+
         if (isset($this->widgetOptions['class'])) {
             $divOptions['class'] = "{$divOptions['class']} {$this->widgetOptions['class']}";
         }
-
-        // The id attribute required for explicit reCaptcha initialization
-        $divOptions['id'] = $this->getReCaptchaId();
-
         $divOptions = $divOptions + $this->widgetOptions;
 
-        return $divOptions;
-    }
-
-    protected function getReCaptchaId()
-    {
-        if (isset($this->widgetOptions['id'])) {
-            return $this->widgetOptions['id'];
-        }
-
-        if ($this->hasModel()) {
-            return $this->model->formName() . '-recaptcha';
-        } else {
-            return $this->name . '-recaptcha';
-        }
+        echo Html::tag('div', '', $divOptions);
     }
 
     protected function getLanguageSuffix()
@@ -176,24 +154,28 @@ class ReCaptcha extends InputWidget
         $view = $this->view;
         if ($this->hasModel()) {
             $inputName = Html::getInputName($this->model, $this->attribute);
+            $inputId = Html::getInputId($this->model, $this->attribute);
         } else {
             $inputName = $this->name;
+            $inputId = 'recaptcha-' . $this->name;
         }
 
-        $inputId = $this->getReCaptchaId() . '-input';
+        if (empty($this->jsCallback)) {
+            $jsCode = "var recaptchaCallback = function(response){jQuery('#{$inputId}').val(response);};";
+        } else {
+            $jsCode = "var recaptchaCallback = function(response){jQuery('#{$inputId}').val(response); {$this->jsCallback}(response);};";
+        }
+        $this->jsCallback = 'recaptchaCallback';
 
-        $verifyCallbackName = lcfirst(Inflector::id2camel($inputId)) . 'Callback';
-
-        $jsCode = $this->render('verify', [
-            'verifyCallbackName' => $verifyCallbackName,
-            'jsCallback' => $this->jsCallback,
-            'inputId' => $inputId,
-        ]);
-
-        $this->jsCallback = $verifyCallbackName;
+        if (empty($this->jsExpiredCallback)) {
+            $jsExpCode = "var recaptchaExpiredCallback = function(){jQuery('#{$inputId}').val('');};";
+        } else {
+            $jsExpCode = "var recaptchaExpiredCallback = function(){jQuery('#{$inputId}').val(''); {$this->jsExpiredCallback}();};";
+        }
+        $this->jsExpiredCallback = 'recaptchaExpiredCallback';
 
         $view->registerJs($jsCode, $view::POS_BEGIN);
-
+        $view->registerJs($jsExpCode, $view::POS_BEGIN);
         echo Html::input('hidden', $inputName, null, ['id' => $inputId]);
     }
 }
